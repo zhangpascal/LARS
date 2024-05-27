@@ -5,4 +5,7 @@ n = 10
 p = 20
 seed = 42
 
-X = gen_data(n, p, seed)
+X, y, beta = gen_data(n, p, seed)
+
+print(X)
+print(y)
