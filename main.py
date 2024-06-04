@@ -6,31 +6,32 @@ from sklearn import linear_model as lin_mod
 from sklearn.metrics import confusion_matrix
 
 lst = []
-n = 1000
+n = 500
 seed = 42
 P = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
-percent_b = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1]
-file = 'analyse_n1000.xlsx'
+B = [1, 2, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]
+file = 'analyse_n500_bfixe_m0,9_l1,1.xlsx'
 
 
 for p in P:
-    for per in percent_b:
+    for b in B:
         
-        num_b = round(p*per)
-
-
-        X, y, beta = gen_data(n, p, num_b, seed)
-
-        reg = lin_mod.Lars()
-        reg.fit(X, y)
-
-        a = reg.coef_>0 #selection of actives 
-        b = beta>0
+        if p>b:
         
-        tp, fn, fp, tn = confusion_matrix(b,a, labels=[True, False]).ravel()
-        
-        data = {"nb_p": p, "nb_b": num_b, "tp": tp, "fn": fn, "fp": fp, "tn": tn}
-        lst.append(data)
+            num_b = b
+
+            X, y, beta = gen_data(n, p, num_b, seed)
+
+            reg = lin_mod.Lars()
+            reg.fit(X, y)
+
+            a = (reg.coef_>0.9)*(reg.coef_<1.1) #selection of actives 
+            b = beta>0.9
+            
+            tp, fn, fp, tn = confusion_matrix(b,a, labels=[True, False]).ravel()
+            
+            data = {"nb_p": p, "nb_b": num_b, "tp": tp, "fn": fn, "fp": fp, "tn": tn}
+            lst.append(data)
         
 df = pd.DataFrame(lst)
 df.to_excel(file, index=False)
